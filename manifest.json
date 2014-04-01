@@ -1,6 +1,7 @@
 {
   "name": "AC Check",
   "description": "Checks current page in AChecker accessibility checker.",
+  "author": "Sandy Lim",
   "homepage_url": "https://github.com/chocopie/AC-check",
   "version": "1.0",
   "permissions": [
