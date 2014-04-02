@@ -1,5 +1,7 @@
 # AC Check
 
+[AC Check in the Chrome Web Store](https://chrome.google.com/webstore/detail/ac-check/fmihbjbalcpopammejjimbianfpfeflm)
+
 This extension automates the following steps on behalf of the user:
 
 1. Copies URL of current tab.
@@ -11,4 +13,5 @@ Yes, this actually does all that - simulating the manual process. I'm scared to 
 
 ### People who are awesome
 
-* niaal for a the lovely icons 
+* [niaal](http://github.com/niaal) for a the lovely icons 
+* [jimmyhillis](http://github.com/jimmyhillis) for the code review
