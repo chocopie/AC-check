@@ -1,8 +1,8 @@
 {
-  "name": "AC Check",
-  "description": "Checks current page in AChecker accessibility checker.",
-  "author": "Sandy Lim",
-  "homepage_url": "https://github.com/chocopie/AC-check",
+  "name": "Tenon Check",
+  "description": "Checks current page in the Tenon accessibility testing tool",
+  "author": "Karl Groves",
+  "homepage_url": "https://github.com/karlgroves/Tenon-Check",
   "version": "1.0",
   "permissions": [
     "activeTab", "tabs", "http://*/*", "https://*/*"
@@ -12,7 +12,7 @@
     "persistent": false
   },
   "browser_action": {
-    "default_title": "Check this page on AChecker.ca",
+    "default_title": "Check this page on Tenon.io",
     "default_icon": "assets/icon19.png"
   },
   "icons": { "16": "assets/icon16.png",
