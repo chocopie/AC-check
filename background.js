@@ -1,9 +1,4 @@
-var urlToVisit = "http://www.tenon.io";
+var urlToVisit = "http://www.tenon.io/testnow?url=";
 chrome.browserAction.onClicked.addListener(function (tab) {
-    chrome.tabs.create({"url": urlToVisit}, function (newTab){
-        chrome.tabs.executeScript({
-            //@TODO this is where we would append the code for our bookmarkable parameters
-            code: "document.getElementById('checkuri').value='" + tab.url + "';"
-        });
-    });
+    chrome.tabs.create({"url": urlToVisit + encodeURIComponent(tab.url}));
 });
