@@ -1,4 +1,5 @@
-var urlToVisit = "http://www.tenon.io/testnow?url=";
+var urlToVisit = "http://www.tenon.io/#testnow";
 chrome.browserAction.onClicked.addListener(function (tab) {
-    chrome.tabs.create({"url": urlToVisit + encodeURIComponent(tab.url}));
+    var current = tab.url;
+    chrome.tabs.create({"url": urlToVisit + '?url=' + encodeURIComponent(current)});
 });
