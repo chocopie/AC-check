@@ -1,3 +1,3 @@
 # Tenon Check
 
-*This is currently a WIP. DO NOT use*
+This is the repository for the Tenon-Check Chrome extension. 
