@@ -1,5 +1,8 @@
-var urlToVisit = "http://tenon.io/testNow.php";
 chrome.browserAction.onClicked.addListener(function (tab) {
-    var current = tab.url;
-    chrome.tabs.create({"url": urlToVisit + '?url=' + encodeURIComponent(current)});
+    chrome.runtime.onMessage.addListener(function (message) {});
+
+    chrome.storage.sync.get(null, function (settings) {
+        chrome.tabs.sendMessage(tab.id, { message: 'TEST_SOURCE', settings: settings });
+    });
 });
+
