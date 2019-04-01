@@ -1,18 +1,24 @@
-var inline = function (selector) {
-    'use strict';
+const inline = selector => {
+    "use strict";
 
-    const PingService = function (endpoint, config) {
+    const PingService = function(endpoint, config) {
         this._endpoint = endpoint;
         this._queue = {};
         this._fetched = {};
         this._resolvers = {};
 
-        const doRequest = (payload) => (resolve, reject) => {
-            var request = new XMLHttpRequest();
+        const doRequest = payload => (resolve, reject) => {
+            const request = new XMLHttpRequest();
             request.timeout = config.REQUEST_TIMEOUT || 20000;
 
             const onTimeout = () => {
-                console.error('Tenon-Check: Request to ' + payload + ' timed out after ' + request.timeout + 'ms.');
+                console.error(
+                    "Tenon-Check: Request to " +
+                        payload +
+                        " timed out after " +
+                        request.timeout +
+                        "ms."
+                );
                 reject(request.status);
             };
 
@@ -34,7 +40,11 @@ var inline = function (selector) {
                     try {
                         response = JSON.parse(request.responseText);
                     } catch (e) {
-                        reject('Tenon-Check: Bad response', e, request.responseText);
+                        reject(
+                            "Tenon-Check: Bad response",
+                            e,
+                            request.responseText
+                        );
                     }
 
                     return resolve(response);
@@ -46,17 +56,17 @@ var inline = function (selector) {
             request.ontimeout = onTimeout;
             request.onreadystatechange = onStateChange;
 
-            request.open('POST', endpoint);
-            request.setRequestHeader('Content-Type', 'application/json');
+            request.open("POST", endpoint);
+            request.setRequestHeader("Content-Type", "application/json");
             request.send(payload);
         };
 
-        this._request = function (payload) {
+        this._request = function(payload) {
             return new Promise(doRequest(payload));
         };
     };
 
-    PingService.prototype.queue = function (url) {
+    PingService.prototype.queue = function(url) {
         let self = this;
 
         if (this._fetched.hasOwnProperty(url)) {
@@ -68,23 +78,23 @@ var inline = function (selector) {
         }
 
         const promise = new Promise(resolve => {
-            self._resolvers[url] = (inline) => {
+            self._resolvers[url] = inline => {
                 self._fetched[url] = inline;
                 resolve(inline);
             };
         });
 
-        return this._queue[url] = promise;
+        return (this._queue[url] = promise);
     };
 
-    PingService.prototype.check = function (url) {
+    PingService.prototype.check = function(url) {
         let self = this;
 
         if (this._fetched.hasOwnProperty(url)) {
             return Promise.resolve(this._fetched[url]);
         }
 
-        const data = JSON.stringify([{'url' : url}]);
+        const data = JSON.stringify([{ url: url }]);
         let inline = true;
 
         return new Promise(resolve => {
@@ -101,16 +111,18 @@ var inline = function (selector) {
                         }
                     });
 
-                    if (!resolved) { resolve(true) }
+                    if (!resolved) {
+                        resolve(true);
+                    }
                 })
                 .catch(() => resolve(true));
         });
     };
 
-    PingService.prototype.runAll = function () {
+    PingService.prototype.runAll = function() {
         let self = this;
 
-        const success = (data) => {
+        const success = data => {
             let results = {};
 
             Object.keys(data).forEach(url => {
@@ -126,34 +138,33 @@ var inline = function (selector) {
             });
         };
 
-        const fail = (e) => {
+        const fail = e => {
             Object.keys(self._resolvers).forEach(r => {
                 self._resolvers[r](true);
             });
         };
 
-        const structure = Object.keys(this._queue).reduce(
-            (prev, cur) => {
-                prev.push({ 'url' : cur });
-                return prev;
-            }, []
-        );
+        const structure = Object.keys(this._queue).reduce((prev, cur) => {
+            prev.push({ url: cur });
+            return prev;
+        }, []);
 
         const data = JSON.stringify(structure);
 
-        const handled = self._request(data)
+        const handled = self
+            ._request(data)
             .then(success)
             .catch(fail);
 
         return handled.then(() => {
-            let promises = Object.keys(this._queue).map(
-                (url) => self._queue[url].then(inline => [url, inline])
+            let promises = Object.keys(this._queue).map(url =>
+                self._queue[url].then(inline => [url, inline])
             );
 
             return Promise.all(promises).then(results => {
                 self._queue = {};
                 self._resolvers = {};
-                return results.reduce( (set, result) => {
+                return results.reduce((set, result) => {
                     set[result[0]] = result[1];
                     return set;
                 }, {});
@@ -161,28 +172,30 @@ var inline = function (selector) {
         });
     };
 
-    let inlineService = ((pingService, config) => {
-        const makeTenonInline = (mappers) => (selector) => {
-            const fetchDom = (selector) => {
+    let inlineService = (pingService, config) => {
+        const makeTenonInline = mappers => selector => {
+            const fetchDom = selector => {
                 return Promise.resolve(document.querySelectorAll(selector));
             };
 
             const chain = (functions, args) => {
                 const curried = functions.map(f => (index, intermediate) => {
-                    let next = curried[index+1];
+                    let next = curried[index + 1];
                     if (next === undefined) {
                         return f(intermediate);
                     }
-                    return f(intermediate).then(result => next(index+1, result));
+                    return f(intermediate).then(result =>
+                        next(index + 1, result)
+                    );
                 });
 
                 return curried[0](0, args);
             };
 
-            const inlineAssets = (dom) => chain(mappers, [dom, []]);
+            const inlineAssets = dom => chain(mappers, [dom, []]);
 
-            const flattenDom = (dom) => {
-                let html = '';
+            const flattenDom = dom => {
+                let html = "";
                 for (let node of dom) {
                     html += node.innerHTML;
                 }
@@ -191,35 +204,36 @@ var inline = function (selector) {
 
             return new Promise(resolve => {
                 fetchDom(selector)
-                .then(inlineAssets)
-                .then(result => {
-                    let [dom, assetPromises] = result;
+                    .then(inlineAssets)
+                    .then(result => {
+                        let [dom, assetPromises] = result;
 
-                    Promise.all(assetPromises)
-                    .then(() => flattenDom(dom))
-                    .then(resolve);
+                        Promise.all(assetPromises)
+                            .then(() => flattenDom(dom))
+                            .then(resolve);
 
-                    pingService.runAll()
-                });
+                        pingService.runAll();
+                    });
             });
-
         };
 
         const NOP = () => {};
 
-        const pingTenon = (url, check) => check ? pingService.check(url) : pingService.queue(url);
+        const pingTenon = (url, check) =>
+            check ? pingService.check(url) : pingService.queue(url);
 
-        const either = (inline, skip) => (shouldInline) => shouldInline ? inline() : skip();
+        const either = (inline, skip) => shouldInline =>
+            shouldInline ? inline() : skip();
 
-        const fetchAssetAsDataURL = (url) => {
+        const fetchAssetAsDataURL = url => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
 
-                reader.addEventListener('loadend', () => {
+                reader.addEventListener("loadend", () => {
                     resolve(reader.result);
                 });
 
-                reader.addEventListener('onerror', reject);
+                reader.addEventListener("onerror", reject);
 
                 fetchAssetAsBlob(url)
                     .then(result => reader.readAsDataURL(result.content))
@@ -227,26 +241,33 @@ var inline = function (selector) {
             });
         };
 
-        const fetchAssetAsBlob = (url) => _fetchAsset(url, true);
-        const fetchAssetAsText = (url) => _fetchAsset(url, false);
+        const fetchAssetAsBlob = url => _fetchAsset(url, true);
+        const fetchAssetAsText = url => _fetchAsset(url, false);
 
         const _fetchAsset = (url, asBlob) => {
             return new Promise((resolve, reject) => {
                 let request = new XMLHttpRequest();
 
                 if (asBlob) {
-                    request.responseType = 'arraybuffer';
+                    request.responseType = "arraybuffer";
                 }
 
                 request.timeout = config.REQUEST_TIMEOUT || 2000;
 
                 const onTimeout = () => {
-                    console.error('Tenon-Check: Request to ' + url + ' timed out after ' + request.timeout + 'ms.');
+                    console.error(
+                        "Tenon-Check: Request to " +
+                            url +
+                            " timed out after " +
+                            request.timeout +
+                            "ms."
+                    );
                     reject(request.status);
                 };
 
                 const onStateChange = () => {
-                    let request_done = request.readyState === XMLHttpRequest.DONE;
+                    let request_done =
+                        request.readyState === XMLHttpRequest.DONE;
                     let http_ok = request.status === 200;
 
                     if (!request_done) {
@@ -261,10 +282,14 @@ var inline = function (selector) {
                             return reject(request.status);
                         }
 
-                        let contentType = request.getResponseHeader('Content-Type');
+                        let contentType = request.getResponseHeader(
+                            "Content-Type"
+                        );
 
                         let content = asBlob
-                            ? new Blob([request.response], { type : contentType })
+                            ? new Blob([request.response], {
+                                  type: contentType
+                              })
                             : request.responseText;
 
                         let result = {
@@ -281,12 +306,12 @@ var inline = function (selector) {
                 request.ontimeout = onTimeout;
                 request.onreadystatechange = onStateChange;
 
-                request.open('GET', url);
+                request.open("GET", url);
                 request.send();
             });
         };
 
-        const toFullPath = (path) => {
+        const toFullPath = path => {
             const absolutePathRegex = /^http(?:s)?:\/\//;
 
             if (absolutePathRegex.test(path)) {
@@ -298,11 +323,15 @@ var inline = function (selector) {
             link.href = path;
 
             const segments = [
-                link.protocol, "//", link.host,
-                link.pathname, link.search, link.hash
+                link.protocol,
+                "//",
+                link.host,
+                link.pathname,
+                link.search,
+                link.hash
             ];
 
-            return segments.join('');
+            return segments.join("");
         };
 
         const getNodesInDom = (selector, dom) => {
@@ -318,7 +347,7 @@ var inline = function (selector) {
             return nodes;
         };
 
-        const inlineImageUrls = (css) => {
+        const inlineImageUrls = css => {
             let fileRegex = /url\(\s*(["'])?([^"'\s]+)(?:\1)?\s*\)/g;
             let dataUriRegex = /^data:/;
 
@@ -336,25 +365,33 @@ var inline = function (selector) {
             const base64Promises = Object.keys(matches).map(matchUrl => {
                 const path = toFullPath(matchUrl);
 
-                const inline = (absoluteUrl) => () => {
+                const inline = absoluteUrl => () => {
                     return fetchAssetAsDataURL(absoluteUrl)
                         .then(dataURL => {
                             while (css.indexOf(matchUrl) > -1) {
                                 css = css.replace(matchUrl, dataURL);
                             }
                             return css;
-                        }).catch(e => console.error('Tenon-Check: Error inlining image url', e));
+                        })
+                        .catch(e =>
+                            console.error(
+                                "Tenon-Check: Error inlining image url",
+                                e
+                            )
+                        );
                 };
 
                 const skip = () => css;
 
-                return pingTenon(path, 'check').then(either(inline(path), skip));
+                return pingTenon(path, "check").then(
+                    either(inline(path), skip)
+                );
             });
 
-            return Promise.all(base64Promises).then( () => css );
+            return Promise.all(base64Promises).then(() => css);
         };
 
-        const inlineImportUrls = (css) => {
+        const inlineImportUrls = css => {
             const importRegex = /@import\s+(?:url\((?:['"])(.*)?(?:['"])\)|(?:['"])(.*)?(?:['"]))[^;]*?;(?!\/\/ tenon-no-inline)/;
 
             const replaceCSS = (css, match, content) => {
@@ -364,7 +401,7 @@ var inline = function (selector) {
                 return css;
             };
 
-            const replaceImportStatements = function (css) {
+            const replaceImportStatements = function(css) {
                 if (!importRegex.test(css)) {
                     return Promise.resolve(css);
                 }
@@ -376,23 +413,38 @@ var inline = function (selector) {
                 const path = toFullPath(url);
 
                 return new Promise(resolve => {
-                    const inline = (url) => () => {
+                    const inline = url => () => {
                         return fetchAssetAsText(path)
-                        .then(asset => replaceCSS(css, statement, asset.content))
-                        .then(resolve)
-                        .catch(() => resolve(replaceCSS(css, statement, '// tenon-no-inline')));
+                            .then(asset =>
+                                replaceCSS(css, statement, asset.content)
+                            )
+                            .then(resolve)
+                            .catch(() =>
+                                resolve(
+                                    replaceCSS(
+                                        css,
+                                        statement,
+                                        "// tenon-no-inline"
+                                    )
+                                )
+                            );
                     };
 
-                    const skip = () => resolve(replaceCSS(css, statement, '// tenon-no-inline'));
+                    const skip = () =>
+                        resolve(
+                            replaceCSS(css, statement, "// tenon-no-inline")
+                        );
 
-                    pingTenon(path, 'check').then(either(inline(path), skip)).then(replaceImportStatements);
+                    pingTenon(path, "check")
+                        .then(either(inline(path), skip))
+                        .then(replaceImportStatements);
                 });
             };
 
             return replaceImportStatements(css);
         };
 
-        const buildMapper = (selector, mapper) => (args) => {
+        const buildMapper = (selector, mapper) => args => {
             let [dom, promises] = args;
 
             const nodes = getNodesInDom(selector, dom);
@@ -405,83 +457,104 @@ var inline = function (selector) {
             return Promise.resolve(result);
         };
 
-        const selectors = [
-            null
-        ];
+        const selectors = [null];
 
         const createStyleNode = content => {
-            const styleNode = document.createElement('style');
+            const styleNode = document.createElement("style");
             styleNode.textContent = content;
             return styleNode;
         };
 
-
         const mappers = [
-            buildMapper('img[src]', (node) => {
+            buildMapper("img[src]", node => {
                 if (node.src.match(/^data:/)) {
                     return Promise.resolve(node);
                 }
 
                 const path = toFullPath(node.src);
 
-                const inline = (url) => () => {
+                const inline = url => () => {
                     return fetchAssetAsDataURL(url)
-                        .then(dataUrl => node.src = dataUrl)
-                        .catch(e => console.warn('Tenon-Check: Could not inline external image: ' + e))
+                        .then(dataUrl => (node.src = dataUrl))
+                        .catch(e =>
+                            console.warn(
+                                "Tenon-Check: Could not inline external image: " +
+                                    e
+                            )
+                        );
                 };
 
                 return pingTenon(path).then(either(inline(path), NOP));
             }),
 
-            buildMapper('script[src]', (node) => {
+            buildMapper("script[src]", node => {
                 const path = toFullPath(node.src);
 
-                const inline = (url) => () => {
+                const inline = url => () => {
                     return fetchAssetAsText(url)
                         .then(script => script.content)
-                        .then(content => node.textContent = content)
-                        .then(() => node.removeAttribute('src'))
-                        .catch(e => console.warn('Tenon-Check: Could not inline external script: ' + e));
+                        .then(content => (node.textContent = content))
+                        .then(() => node.removeAttribute("src"))
+                        .catch(e =>
+                            console.warn(
+                                "Tenon-Check: Could not inline external script: " +
+                                    e
+                            )
+                        );
                 };
 
                 return pingTenon(path).then(either(inline(path), NOP));
             }),
 
-            buildMapper('link[rel="stylesheet"]', (node) => {
+            buildMapper('link[rel="stylesheet"]', node => {
                 const path = toFullPath(node.href);
 
-                const inline = (url) => () => {
+                const inline = url => () => {
                     return fetchAssetAsText(url)
                         .then(styles => styles.content)
                         .then(inlineImportUrls)
                         .then(inlineImageUrls)
                         .then(content => createStyleNode(content))
-                        .then(styleNode => node.parentNode.insertBefore(styleNode, node))
+                        .then(styleNode =>
+                            node.parentNode.insertBefore(styleNode, node)
+                        )
                         .then(() => node.remove())
-                        .catch(e => console.warn('Tenon-Check: Could not inline external styles: ' + e));
+                        .catch(e =>
+                            console.warn(
+                                "Tenon-Check: Could not inline external styles: " +
+                                    e
+                            )
+                        );
                 };
 
                 return pingTenon(path).then(either(inline(path), NOP));
             }),
 
-            buildMapper('style', (node) => {
+            buildMapper("style", node => {
                 return inlineImportUrls(node.textContent)
                     .then(inlineImageUrls)
-                    .then(content => node.textContent = content)
-                    .catch(e => console.warn('Tenon-Check: Could not inline inline styles: ' + e));
+                    .then(content => (node.textContent = content))
+                    .catch(e =>
+                        console.warn(
+                            "Tenon-Check: Could not inline inline styles: " + e
+                        )
+                    );
             })
         ];
 
         return makeTenonInline(mappers, config);
-    });
+    };
 
-    return inlineService(new PingService('https://tenon.io/api/ping.php', {}), {})(selector);
+    return inlineService(
+        new PingService("https://tenon.io/api/ping.php", {}),
+        {}
+    )(selector);
 };
 
-var request = function (apiKey, apiUrl, pageSource, onSuccess, onError) {
-    var r = new XMLHttpRequest();
+const request = (apiKey, apiUrl, pageSource, onSuccess, onError) => {
+    const r = new XMLHttpRequest();
 
-    r.onload = function () {
+    r.onload = function() {
         if (r.status === 200) {
             return onSuccess(r.responseText);
         }
@@ -489,55 +562,55 @@ var request = function (apiKey, apiUrl, pageSource, onSuccess, onError) {
         onError(r.responseText);
     };
 
-    var formData = new FormData();
+    const formData = new FormData();
 
-    formData.append('key', apiKey);
-    formData.append('src', pageSource);
-    formData.append('fragment', 0);
+    formData.append("key", apiKey);
+    formData.append("src", pageSource);
+    formData.append("fragment", 0);
 
-    r.open('POST', apiUrl)
+    r.open("POST", apiUrl);
 
     r.send(formData);
 };
 
-var testSource = function (settings) {
-    return function (source) {
+const testSource = settings => {
+    return source => {
         if (source.length > settings.maxSourceLength) {
-            return Promise.reject('Document source too large');
+            return Promise.reject("Document source too large");
         }
 
-        var api = "https://tenon.io/api/index.php";
+        const api = "https://tenon.io/api/index.php";
 
-        var apiFailure = reject => apiResponse => {
+        const apiFailure = reject => apiResponse => {
             try {
-                var response = JSON.parse(apiResponse);
+                const response = JSON.parse(apiResponse);
                 reject(`${response.message}. (${response.info})`);
             } catch (e) {
-                reject('Unexpected Tenon API response');
+                reject("Unexpected Tenon API response");
             }
         };
 
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             request(settings.apiKey, api, source, resolve, apiFailure(reject));
         });
     };
 };
 
-var showResults = function (testResults) {
+const showResults = testResults => {
     try {
-        var results = JSON.parse(testResults);
+        const results = JSON.parse(testResults);
         if (results.resultUrl) {
             document.location.href = results.resultUrl;
         }
     } catch (e) {
-        console.error('Tenon-Check: Unexpected API response, couldn\'t parse.');
+        console.error("Tenon-Check: Unexpected API response, couldn't parse.");
     }
 };
 
-var getSource = function (selector, inlineAssets) {
-    var getDom = selector => {
-        var dom = document.querySelectorAll(selector);
-        let html = '';
+var getSource = (selector, inlineAssets) => {
+    const getDom = selector => {
+        const dom = document.querySelectorAll(selector);
+        let html = "";
         for (let node of dom) {
             html += node.innerHTML;
         }
@@ -556,16 +629,16 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
         return;
     }
 
-    if (request.message && request.message === 'TEST_SOURCE') {
+    if (request.message && request.message === "TEST_SOURCE") {
         if (!Object.keys(request.settings).length) {
-            alert('Tenon-Check: The extension not properly configured.');
+            alert("Tenon-Check: The extension not properly configured.");
             return;
         }
 
-        getSource('html', request.settings.inline)
+        getSource("html", request.settings.inline)
             .then(testSource(request.settings))
             .then(showResults)
-            .catch(function (e) {
+            .catch(function(e) {
                 alert(`Tenon-Check: Error testing page - ${e}`);
             });
     }
