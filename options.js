@@ -1,11 +1,14 @@
 function saveSettings () {
     var settings = {};
 
-    var tenonApiKey = document.querySelector('#tenon-api-key').value;
+    var apiKey = document.querySelector('#apiKey').value;
+    var inline = document.querySelector('#inline').checked;
 
-    if (tenonApiKey !== undefined) {
-        settings['tenon-api-key'] = tenonApiKey;
+    if (apiKey !== undefined) {
+        settings.apiKey = apiKey;
     }
+
+    settings.inline = !!inline;
 
     chrome.storage.sync.set(settings, function () {
         console.debug('Tenon-Check: settings saved');
@@ -14,9 +17,10 @@ function saveSettings () {
 
 function setupForm () {
     chrome.storage.sync.get(null, function (settings) {
-        if (settings['tenon-api-key'] !== undefined) {
-            document.querySelector('#tenon-api-key').value = settings['tenon-api-key'];
+        if (settings.apiKey !== undefined) {
+            document.querySelector('#apiKey').value = settings.apiKey;
         }
+        document.querySelector('#inline').checked = !!settings.inline;
     });
 
     document.querySelector('button').addEventListener('click', saveSettings);

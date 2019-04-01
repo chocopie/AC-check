@@ -1,5 +1,5 @@
-var inline = function () {
-'use strict';
+var inline = function (selector) {
+    'use strict';
 
     const PingService = function (endpoint, config) {
         this._endpoint = endpoint;
@@ -47,8 +47,8 @@ var inline = function () {
             request.onreadystatechange = onStateChange;
 
             request.open('POST', endpoint);
-            //request.setRequestHeader('Content-Type', 'application/json');
-            request.send(JSON.stringify(payload));
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(payload);
         };
 
         this._request = function (payload) {
@@ -88,18 +88,18 @@ var inline = function () {
         let inline = true;
 
         return new Promise(resolve => {
-            self._request(url)
+            self._request(data)
                 .then(data => {
                     let resolved = false;
-                    for (var i = 0, j = data.length; i < j; i++) {
-                        let result = data[i];
-                        if (result.url === url) {
-                            self._fetched[url] = !result.status;
-                            resolve(!result.status);
-                            resolved = true;
-                            break;
+                    Object.keys(data).forEach(key => {
+                        if (resolved) {
+                            return;
                         }
-                    }
+                        if (key === url) {
+                            resolve(parseInt(data[key]) !== 200);
+                            resolved = true;
+                        }
+                    });
 
                     if (!resolved) { resolve(true) }
                 })
@@ -110,11 +110,11 @@ var inline = function () {
     PingService.prototype.runAll = function () {
         let self = this;
 
-        const success = () => {
+        const success = (data) => {
             let results = {};
 
-            structure.forEach(result => {
-                results[result.url] = !(result.status);
+            Object.keys(data).forEach(url => {
+                results[url] = parseInt(data[url]) !== 200;
             });
 
             Object.keys(self._queue).forEach(url => {
@@ -475,7 +475,7 @@ var inline = function () {
         return makeTenonInline(mappers, config);
     });
 
-    return inlineService(new PingService('https://tenon.io/api/ping.php', {}), {})('html');
+    return inlineService(new PingService('https://tenon.io/api/ping.php', {}), {})(selector);
 };
 
 var request = function (apiKey, apiUrl, pageSource, onSuccess, onError) {
@@ -505,7 +505,7 @@ var testSource = function (settings) {
         var api = "https://tenon.io/api/index.php";
 
         return new Promise(function (resolve, reject) {
-            request(settings['tenon-api-key'], api, source, resolve, reject);
+            request(settings.apiKey, api, source, resolve, reject);
         });
     };
 };
@@ -519,6 +519,21 @@ var showResults = function (testResults) {
     } catch (e) {
         console.error('Tenon-Check: Unexpected API response, couldn\'t parse.');
     }
+};
+
+var getSource = function (selector, inlineAssets) {
+    var getDom = selector => {
+        var dom = document.querySelectorAll(selector);
+        let html = '';
+        for (let node of dom) {
+            html += node.innerHTML;
+        }
+        return Promise.resolve(html);
+    };
+
+    console.debug(selector, inlineAssets);
+
+    return inlineAssets ? inline(selector) : getDom(selector);
 };
 
 /*
@@ -536,7 +551,7 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
             return;
         }
 
-        inline()
+        getSource('html', request.settings.inline)
             .then(testSource(request.settings))
             .then(showResults)
             .catch(function (e) {

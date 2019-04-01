@@ -2,14 +2,42 @@
 <html lang="en">
     <head>
         <script src="options.js"></script>
+        <style>
+            html {
+                box-sizing: border-box;
+                font-family: Helvetica, Verdana, 'serif';
+                font-size: 100%;
+            }
+
+            form {
+                font-size: 1.5em;
+            }
+
+            .labelled-field {
+                margin: 1em 0 1em 1em;
+            }
+
+            .labelled-field label {
+                margin-bottom: .5em;
+            }
+
+            .labelled-field input {
+                font-size: 1em;
+            }
+        </style>
     </head>
     <body>
-        <h1>Tenon-Check options</h1>
+        <h1>Tenon-Check settings</h1>
 
         <form id="tenon-check-options" method="post">
             <div class="labelled-field">
-                <label for="tenon-api-key">API key:</label>
-                <input type="text" id="tenon-api-key" name="tenon-api-key">
+                <label for="apiKey">API key</label>
+                <input type="text" id="apiKey" name="apiKey">
+            </div>
+
+            <div class="labelled-field">
+                <label for="inline">Inline unreachable assets</label>
+                <input type="checkbox" id="inline" name="inline">
             </div>
 
             <button type="button">Save settings</button>
