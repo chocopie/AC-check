@@ -16,7 +16,7 @@ function saveSettings () {
 }
 
 function setupForm () {
-    const MAX_SOURCE_LENGTH = 120_000;
+    const MAX_SOURCE_LENGTH = 120000;
 
     chrome.storage.sync.get(null, function (settings) {
         settings.maxSourceLength = MAX_SOURCE_LENGTH;
