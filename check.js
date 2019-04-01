@@ -486,7 +486,7 @@ var request = function (apiKey, apiUrl, pageSource, onSuccess, onError) {
             return onSuccess(r.responseText);
         }
 
-        onError(r.status);
+        onError(r.responseText);
     };
 
     var formData = new FormData();
@@ -502,10 +502,23 @@ var request = function (apiKey, apiUrl, pageSource, onSuccess, onError) {
 
 var testSource = function (settings) {
     return function (source) {
+        if (source.length > settings.maxSourceLength) {
+            return Promise.reject('Document source too large');
+        }
+
         var api = "https://tenon.io/api/index.php";
 
+        var apiFailure = reject => apiResponse => {
+            try {
+                var response = JSON.parse(apiResponse);
+                reject(`${response.message}. (${response.info})`);
+            } catch (e) {
+                reject('Unexpected Tenon API response');
+            }
+        };
+
         return new Promise(function (resolve, reject) {
-            request(settings.apiKey, api, source, resolve, reject);
+            request(settings.apiKey, api, source, resolve, apiFailure(reject));
         });
     };
 };
@@ -531,8 +544,6 @@ var getSource = function (selector, inlineAssets) {
         return Promise.resolve(html);
     };
 
-    console.debug(selector, inlineAssets);
-
     return inlineAssets ? inline(selector) : getDom(selector);
 };
 
@@ -547,7 +558,7 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 
     if (request.message && request.message === 'TEST_SOURCE') {
         if (!Object.keys(request.settings).length) {
-            alert('Tenon-Check is not properly configured.');
+            alert('Tenon-Check: The extension not properly configured.');
             return;
         }
 
@@ -555,7 +566,7 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
             .then(testSource(request.settings))
             .then(showResults)
             .catch(function (e) {
-                console.error('Tenon-Check: Error inlining:', e);
+                alert(`Tenon-Check: Error testing page - ${e}`);
             });
     }
 });

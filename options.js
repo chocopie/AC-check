@@ -16,7 +16,11 @@ function saveSettings () {
 }
 
 function setupForm () {
+    const MAX_SOURCE_LENGTH = 120_000;
+
     chrome.storage.sync.get(null, function (settings) {
+        settings.maxSourceLength = MAX_SOURCE_LENGTH;
+
         if (settings.apiKey !== undefined) {
             document.querySelector('#apiKey').value = settings.apiKey;
         }
