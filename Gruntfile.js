@@ -33,8 +33,8 @@
         copy: {
             dist: {
                 files: [
-                    { expand: true, src: 'src/options.html', dest: 'dist/', filter: 'isFile', flatten: true },
-                    { expand: true, src: 'manifest.json', dest: 'dist/', filter: 'isFile' },
+                    { expand: true, src: 'src/options.html', dest: 'dist/', flatten: true },
+                    { expand: true, src: 'manifest.json', dest: 'dist/' },
                     { expand: true, src: 'assets/*', dest: 'dist/' }
                 ],
             }

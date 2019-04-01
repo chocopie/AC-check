@@ -25,8 +25,8 @@
     "babel-preset-env": "^1.7.0",
     "grunt-babel": "^8.0.0",
     "grunt-contrib-clean": "^2.0.0",
+    "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-uglify": "^4.0.1",
-    "grunt-copy": "^0.1.0",
     "grunt-eslint": "^21.0.0",
     "load-grunt-tasks": "^4.0.0"
   }
