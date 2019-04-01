@@ -7,5 +7,5 @@ https://chrome.google.com/webstore/detail/tenon-check/bmibjbhkgepmnehjfhjaalkikn
 
 ## Build
 
-`npm install`
-`grunt`
+* `npm install`
+* `grunt`
