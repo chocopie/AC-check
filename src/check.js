@@ -546,7 +546,7 @@ const inline = selector => {
     };
 
     return inlineService(
-        new PingService("https://tenon.io/api/ping.php", {}),
+        new PingService("https://demo.tenon.io/api/ping.php", {}),
         {}
     )(selector);
 };
@@ -603,7 +603,7 @@ const showResults = testResults => {
             document.location.href = results.resultUrl;
         }
     } catch (e) {
-        console.error("Tenon-Check: Unexpected API response, couldn't parse.");
+        alert("Tenon-Check: Unexpected API response, couldn't parse.");
     }
 };
 
