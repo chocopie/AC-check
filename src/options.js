@@ -1,12 +1,17 @@
 function saveSettings () {
     var settings = {};
-
+    var instanceUrl = document.querySelector('#instanceUrl').value;
     var apiKey = document.querySelector('#apiKey').value;
     var inline = document.querySelector('#inline').checked;
 
     if (apiKey !== undefined) {
         settings.apiKey = apiKey;
     }
+
+    if (instanceUrl === undefined) {
+        settings.instanceUrl = 'https://www.tenon.io';
+    }
+    settings.instanceUrl = instanceUrl;
 
     settings.inline = !!inline;
 
@@ -20,6 +25,13 @@ function setupForm () {
 
     chrome.storage.sync.get(null, function (settings) {
         settings.maxSourceLength = MAX_SOURCE_LENGTH;
+
+        if (settings.instanceUrl !== undefined) {
+            document.querySelector('#instanceUrl').value = settings.instanceUrl;
+        }
+        else{
+          document.querySelector('#instanceUrl').value = 'https://www.tenon.io';
+        }
 
         if (settings.apiKey !== undefined) {
             document.querySelector('#apiKey').value = settings.apiKey;

@@ -9,8 +9,16 @@
                 font-size: 100%;
             }
 
+            h1{
+              font-size: 1.5em;
+            }
+
             form {
-                font-size: 1.5em;
+                font-size: 1em;
+            }
+
+            input:hover, input:focus{
+              border: 1px solid #369;
             }
 
             .labelled-field {
@@ -24,20 +32,35 @@
             .labelled-field input {
                 font-size: 1em;
             }
+
+            .block-input input{
+              display: block;
+            }
+
+            input[type="checkbox"]{
+              height: 1em;
+              width: 1em;
+            }
         </style>
     </head>
     <body>
         <h1>Tenon-Check settings</h1>
 
         <form id="tenon-check-options" method="post">
-            <div class="labelled-field">
+
+          <div class="labelled-field block-input">
+              <label for="instanceUrl">Tenon Instance URL</label>
+              <input type="url" id="instanceUrl" name="instanceUrl">
+          </div>
+
+            <div class="labelled-field block-input">
                 <label for="apiKey">API key</label>
                 <input type="text" id="apiKey" name="apiKey">
             </div>
 
             <div class="labelled-field">
-                <label for="inline">Inline unreachable assets</label>
-                <input type="checkbox" id="inline" name="inline">
+              <input type="checkbox" id="inline" name="inline">
+              <label for="inline">Inline unreachable assets?</label>
             </div>
 
             <button type="button">Save settings</button>

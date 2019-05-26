@@ -1,3 +1,4 @@
+
 const inline = selector => {
     "use strict";
 
@@ -380,7 +381,6 @@ const inline = selector => {
                             )
                         );
                 };
-
                 const skip = () => css;
 
                 return pingTenon(path, "check").then(
@@ -506,6 +506,7 @@ const inline = selector => {
                 return pingTenon(path).then(either(inline(path), NOP));
             }),
 
+
             buildMapper('link[rel="stylesheet"]', node => {
                 const path = toFullPath(node.href);
 
@@ -521,8 +522,7 @@ const inline = selector => {
                         .then(() => node.remove())
                         .catch(e =>
                             console.warn(
-                                "Tenon-Check: Could not inline external styles: " +
-                                    e
+                                "Tenon-Check: Could not inline external styles: " + e
                             )
                         );
                 };
@@ -567,7 +567,6 @@ const request = (apiKey, apiUrl, pageSource, onSuccess, onError) => {
     formData.append("key", apiKey);
     formData.append("src", pageSource);
     formData.append("fragment", 0);
-
     r.open("POST", apiUrl);
 
     r.send(formData);
@@ -579,7 +578,7 @@ const testSource = settings => {
             return Promise.reject("Document source too large");
         }
 
-        const api = "https://tenon.io/api/index.php";
+        const api = settings.instanceUrl + "/api/index.php";
 
         const apiFailure = reject => apiResponse => {
             try {
@@ -631,7 +630,7 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 
     if (request.message && request.message === "TEST_SOURCE") {
         if (!Object.keys(request.settings).length) {
-            alert("Tenon-Check: The extension not properly configured.");
+            alert("Tenon-Check: The extension is not properly configured.");
             return;
         }
 

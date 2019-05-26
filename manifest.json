@@ -3,7 +3,7 @@
   "description": "Checks current page in the Tenon accessibility testing tool",
   "author": "Job van Achterberg",
   "homepage_url": "https://github.com/tenon-io/Tenon-Check",
-  "version": "1.0",
+  "version": "2.0",
 
   "permissions": [
     "activeTab", "tabs", "http://*/*", "https://*/*", "storage"
