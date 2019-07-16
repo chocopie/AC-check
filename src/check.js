@@ -606,7 +606,7 @@ const showResults = testResults => {
     }
 };
 
-function getSource (selector, inlineAssets) {
+const getSource = (selector, inlineAssets) => {
     console.log("in getSource");
     const getDom = selector => {
         const dom = document.querySelectorAll(selector);
@@ -630,7 +630,6 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
     }
 
     if (request.message && request.message === "TEST_SOURCE") {
-        console.log("GOOD MESSAGE");
         if (!Object.keys(request.settings).length) {
             alert("Tenon-Check: The extension is not properly configured.");
             return;
