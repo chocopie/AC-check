@@ -6,6 +6,7 @@ window.alert = jest.fn();
 require('../src/check');
 
 describe('check.js', function () {
+	console.log(getSource);
 	const settings = {
 		apiKey: "c630990d2999c17ee2c4600df0a67ec6",
 		inline: false,
