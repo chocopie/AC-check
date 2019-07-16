@@ -2,15 +2,10 @@ const saveSettings = () => {
     let settings = {};
     let instanceUrl = document.querySelector('#instanceUrl').value;
     let apiKey = document.querySelector('#apiKey').value;
-    let apiEndpoint = document.querySelector('#apiEndpoint').value;
     let inline = document.querySelector('#inline').checked;
 
     if (apiKey !== undefined) {
         settings.apiKey = apiKey;
-    }
-
-    if (apiEndpoint !== undefined) {
-        settings.apiEndpoint = apiEndpoint;
     }
 
     settings.instanceUrl = instanceUrl ? instanceUrl : 'https://tenon.io';
