@@ -1,4 +1,3 @@
-
 const inline = selector => {
     "use strict";
 
@@ -607,7 +606,6 @@ const showResults = testResults => {
 };
 
 const getSource = (selector, inlineAssets) => {
-    console.log("in getSource");
     const getDom = selector => {
         const dom = document.querySelectorAll(selector);
         let html = "";
@@ -623,7 +621,7 @@ const getSource = (selector, inlineAssets) => {
 /*
  * Respond to the extension button being clicked.
  */
-chrome.runtime.onMessage.addListener(function(request, sender) {
+chrome.runtime.onMessage.addListener((request, sender) => {
     // Ignore if not from extension
     if (sender.tab) {
         return;
@@ -634,7 +632,6 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
             alert("Tenon-Check: The extension is not properly configured.");
             return;
         }
-
         getSource("html", request.settings.inline)
             .then(testSource(request.settings))
             .then(showResults)
@@ -643,3 +640,4 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
             });
     }
 });
+

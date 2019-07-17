@@ -3,10 +3,10 @@ const sinon = require('sinon');
 window.chrome = chrome;
 window.alert = jest.fn();
 
-require('../src/check');
+const check = require('../src/check');
 
 describe('check.js', function () {
-	console.log(getSource);
+
 	const settings = {
 		apiKey: "c630990d2999c17ee2c4600df0a67ec6",
 		inline: false,
@@ -15,14 +15,13 @@ describe('check.js', function () {
 
 	const messageSpy = sinon.spy();
 	const alertSpy = sinon.spy(alert);
-	const getSourceSpy = sinon.spy();
 	chrome.runtime.onMessage.addListener(messageSpy);
-	
-	test("should be called with arguments when user initiates extension", () => {
-		chrome.runtime.onMessage.trigger({message: "TEST_SOURCE", settings: settings}, {id: "abcdef"});
-		expect(messageSpy.withArgs({message: "TEST_SOURCE", settings: settings}, {id: "abcdef"}).callCount).toEqual(1);
-	});
 
+	test("should be called with arguments when user initiates extension", () => {
+		chrome.runtime.onMessage.trigger({message: "TEST", settings: settings}, {id: "abcdef"});
+		expect(messageSpy.withArgs({message: "TEST", settings: settings}, {id: "abcdef"}).callCount).toEqual(1);
+	});
+	
 	test("should not proceed if settings are empty", () => {
 		chrome.runtime.onMessage.trigger({message: "TEST_SOURCE", settings: {}}, {id: "abcdef"});
 		expect(alertSpy).toHaveBeenCalledWith('Tenon-Check: The extension is not properly configured.');
