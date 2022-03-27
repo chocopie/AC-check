@@ -1,3 +1,5 @@
+THIS REPO IS NO LONGER UPDATED. THERE MAY BE A MORE UP-TO-DATE FORK.
+
 # AC Check
 
 [AC Check in the Chrome Web Store](https://chrome.google.com/webstore/detail/ac-check/fmihbjbalcpopammejjimbianfpfeflm)
